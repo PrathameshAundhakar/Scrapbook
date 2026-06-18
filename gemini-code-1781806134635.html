@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For My Nanu Baby</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --pink-bg: #ffd9e4;
+      --pink-bg-soft: #fff0f4;
+      --pink-deep: #ff4f81;
+      --pink-mid: #ff8aac;
+      --black-ink: #1a1a1a;
+      --black-soft: #2a2225;
+      --cream: #fff6f8;
+      --gold: #d4a24c;
+      --white: #ffffff;
+      --shadow: 0 12px 40px rgba(255, 79, 129, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(180deg, var(--pink-bg) 0%, var(--pink-bg-soft) 100%);
+      color: var(--black-ink);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      perspective: 1500px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+    }
+
+    /* ENVELOPE INTRO SCREEN */
+    #envelope-wrapper {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #ffe3ec 0%, #ffb6cd 100%);
+      z-index: 10000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 1s cubic-bezier(0.77, 0, 0.175, 1), transform 1s ease;
+    }
+
+    #envelope-wrapper.opened {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-100vh);
+    }
+
+    .envelope {
+      position: relative;
+      width: 320px;
+      height: 220px;
+      background: #ff7597;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+    }
+
+    .envelope:hover {
+      transform: scale(1.03);
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-top: 130px solid #ff4f81;
+      transform-origin: top;
+      transition: transform 0.6s ease-in-out;
+      z-index: 3;
+    }
+
+    .envelope.open .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-pockets {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      z-index: 2;
+      overflow: hidden;
+      border-radius: 0 0 12px 12px;
+    }
+
+    .envelope-pockets::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      border-left: 160px solid #ff6288;
+      border-top: 120px solid transparent;
+      width: 0;
+      height: 0;
+    }
+
+    .envelope-pockets::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      border-right: 160px solid #ff6288;
+      border-top: 120px solid transparent;
+      width: 0;
+      height: 0;
+    }
+
+    /* TEXT DIRECTLY ON ENVELOPE FRONT */
+    .envelope-label {
+      position: absolute;
+      bottom: 25px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 10;
+      font-size: 0.85rem;
+      color: var(--white);
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .envelope.open .envelope-label {
+      opacity: 0;
+    }
+
+    .letter-card {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      bottom: 15px;
+      background: var(--cream);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      z-index: 1;
+      transform: translateY(35px);
+      opacity: 0;
+      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .envelope.open .letter-card {
+      transform: translateY(-110px) scale(1.05);
+      opacity: 1;
+      z-index: 4;
+    }
+
+    .letter-card p {
+      font-weight: 600;
+      color: var(--pink-deep);
+      font-size: 1.1rem;
+    }
+
+    /* BACKGROUND AMBIENT EFFECTS */
+    .ambient {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .float-item {
+      position: absolute;
+      opacity: 0.6;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(105vh) rotate(0deg);
+        opacity: 0;
+      }
+
+      15% {
+        opacity: 0.6;
+      }
+
+      90% {
+        opacity: 0.6;
+      }
+
+      100% {
+        transform: translateY(-15vh) rotate(45deg);
+        opacity: 0;
+      }
+    }
+
+    .sparkle {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      box-shadow: 0 0 10px 2px #fff, 0 0 20px var(--pink-mid);
+      animation: fadeOutSparkle 0.8s linear forwards;
+    }
+
+    @keyframes fadeOutSparkle {
+      to {
+        opacity: 0;
+        transform: scale(0.2);
+      }
+    }
+
+    /* HIGH INTENSITY HEART POP CONFETTI CLIMAX EFFECT */
+    .pink-pop-heart {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      left: 50vw;
+      bottom: -20px;
+      animation: heartPopBurst 1.8s cubic-bezier(0.1, 0.85, 0.25, 1) forwards;
+    }
+
+    @keyframes heartPopBurst {
+      0% {
+        transform: translate(0, 0) scale(0.1) rotate(0deg);
+        opacity: 0;
+      }
+
+      15% {
+        opacity: 1;
+      }
+
+      /* Explosive outward arc confetti pop */
+      100% {
+        transform: translate(var(--drift-x), var(--drift-y)) scale(var(--target-scale)) rotate(var(--target-rotate));
+        opacity: 0;
+      }
+    }
+
+    /* 3D BOOK & PAGE LAYOUT ENGINE */
+    .book-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .book {
+      position: relative;
+      width: 92vw;
+      height: 86vh;
+      max-width: 850px;
+      max-height: 650px;
+      background: transparent;
+      transform-style: preserve-3d;
+    }
+
+    .page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: var(--cream);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow-y: auto;
+      backface-visibility: hidden;
+      transform-origin: left center;
+      transition: transform 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95), opacity 0.6s, z-index 0s linear 0.4s;
+      opacity: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .page.active {
+      opacity: 1;
+      z-index: 5;
+      pointer-events: all;
+      transform: rotateY(0deg);
+      transition: transform 0.8s ease, opacity 0.6s, z-index 0s;
+    }
+
+    .page.flipped {
+      transform: rotateY(-180deg);
+      opacity: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* TYPOGRAPHY & SECTIONS */
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--pink-deep);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .page h1 {
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      text-align: center;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .page h1 span {
+      color: var(--pink-deep);
+    }
+
+    .page h2 {
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      text-align: center;
+      margin-bottom: 24px;
+      color: var(--black-ink);
+    }
+
+    .page p.sub {
+      font-size: 1.1rem;
+      text-align: center;
+      color: var(--black-soft);
+      max-width: 500px;
+      line-height: 1.6;
+    }
+
+    /* REAL POLAROID GALLERY */
+    .polaroid-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 600px;
+      margin-top: 10px;
+    }
+
+    .polaroid {
+      background: white;
+      padding: 12px 12px 24px 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      transform: rotate(var(--r));
+      transition: transform 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .polaroid:hover {
+      transform: rotate(0deg) scale(1.05);
+      z-index: 10;
+    }
+
+    .polaroid-img {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      border-radius: 4px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .polaroid-caption {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 0.95rem;
+      text-align: center;
+      color: #4a4a4a;
+      margin-top: 12px;
+    }
+
+    /* LIVE ELAPSED TIMER */
+    .timer-panel {
+      background: var(--black-ink);
+      border-radius: 24px;
+      padding: 30px 20px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .time-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .time-unit span {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      color: var(--pink-mid);
+      text-shadow: 0 0 15px rgba(255, 138, 172, 0.5);
+    }
+
+    .time-unit label {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream);
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    /* PRESTIGE VINYL AUDIO PLAYER */
+    .vinyl-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .vinyl {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, var(--black-ink) 0%, var(--black-ink) 22%, var(--pink-deep) 23%, var(--black-soft) 60%, var(--black-ink) 61%, var(--black-ink) 100%);
+      position: relative;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.5s ease;
+    }
+
+    .vinyl::after {
+      content: '❤️';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2rem;
+    }
+
+    .vinyl.playing {
+      animation: spin 4s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .play-btn {
+      margin-top: 20px;
+      background: var(--pink-deep);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-family: 'Fredoka', sans-serif;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 79, 129, 0.3);
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .play-btn:hover {
+      background: #e03b6a;
+      transform: translateY(-2px);
+    }
+
+    /* REASONS GRID INTERACTIVE */
+    .hearts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      width: 100%;
+      max-width: 650px;
+      margin: 15px 0;
+    }
+
+    .heart-btn {
+      aspect-ratio: 1;
+      border: none;
+      border-radius: 16px;
+      background: var(--white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--black-ink);
+      box-shadow: 0 4px 12px rgba(255, 79, 129, 0.1);
+      transition: transform 0.2s, background 0.3s;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .heart-btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .heart-btn svg {
+      width: 28px;
+      height: 28px;
+      transition: transform 0.2s;
+    }
+
+    .heart-btn.revealed {
+      background: var(--pink-deep);
+      color: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .heart-btn.revealed svg {
+      display: none;
+    }
+
+    .reasons-finale {
+      font-family: 'Fredoka', sans-serif;
+      color: var(--pink-deep);
+      font-size: 1.1rem;
+      margin-top: 15px;
+      height: 1.4em;
+      font-weight: 600;
+    }
+
+    /* MEMORY CARDS ALTERNATIVE LAYOUT */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .memory-card {
+      background: var(--white);
+      padding: 25px 20px;
+      border-radius: 16px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
+      text-align: center;
+    }
+
+    .memory-card h3 {
+      color: var(--pink-deep);
+      margin-bottom: 8px;
+      font-size: 1.15rem;
+    }
+
+    .memory-card p {
+      font-size: 0.9rem;
+      color: var(--black-soft);
+      line-height: 1.5;
+    }
+
+    /* FIXED NAVIGATION BAR & CONTROLS */
+    .nav-fixed {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 10px 24px;
+      border-radius: 999px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-arrow {
+      background: var(--pink-deep);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: background 0.3s, transform 0.2s;
+      font-weight: bold;
+    }
+
+    .nav-arrow:hover {
+      background: #e03b6a;
+      transform: scale(1.05);
+    }
+
+    .nav-arrow:disabled {
+      background: #ecc3ce;
+      cursor: not-allowed;
+    }
+
+    .page-indicator {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--black-soft);
+    }
+
+    /* FIXED YOUTUBE EMBED PLAYER HIDER */
+    #yt-player-container {
+      position: fixed;
+      top: -9999px;
+      left: -9999px;
+      width: 300px;
+      height: 200px;
+      pointer-events: none;
+    }
+
+    /* RESPONSIVENESS AND MOBILE FIXES */
+    @media(max-width: 768px) {
+      .book {
+        height: 90vh;
+      }
+
+      .page {
+        padding: 24px 16px;
+        justify-content: flex-start;
+      }
+
+      .polaroid-gallery {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        max-width: 280px;
+      }
+
+      .memory-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .hearts-grid {
+        grid-template-columns: repeat(2, 2fr);
+        gap: 10px;
+      }
+
+      .heart-btn {
+        font-size: 0.7rem;
+        padding: 6px;
+      }
+
+      .timer-panel {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 20px 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="yt-player-container">
+    <div id="player"></div>
+  </div>
+
+  <div id="envelope-wrapper">
+    <div class="envelope" onclick="openEnvelope(this)">
+      <div class="envelope-flap"></div>
+      <div class="envelope-pockets"></div>
+      <div class="envelope-label">Click to Open</div>
+      <div class="letter-card">
+        <p>For Nanu Baby 💌</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ambient" id="ambient"></div>
+
+  <div class="book-container">
+    <div class="book" id="scrapbook">
+
+      <div class="page active">
+        <p class="eyebrow">A small universe built for one specific person</p>
+        <h1>For My <span>Nanu Baby</span></h1>
+        <p class="sub">Black is your absolute favorite color. This entire world is pink anyway, because that's exactly
+          how it goes when something is designed entirely around you.</p>
+        <div style="margin-top: 30px; font-size: 2rem;">📖 ✨</div>
+      </div>
+
+      <div class="page">
+        <p class="eyebrow">Jaipur &middot; 17 May &middot; 9:53 AM</p>
+        <h2>Since I Last Held Your Hand</h2>
+        <div class="timer-panel">
+          <div class="time-unit"><span id="d">000</span><label>days</label></div>
+          <div class="time-unit"><span id="h">00</span><label>hours</label></div>
+          <div class="time-unit"><span id="m">00</span><label>minutes</label></div>
+          <div class="time-unit"><span id="s">00</span><label>seconds</label></div>
+        </div>
+        <p class="sub" style="margin-top: 24px; font-style: italic; font-size: 0.95rem;">Counting every single sweet
+          second of it.</p>
+      </div>
+
+      <div class="page">
+        <p class="eyebrow">Captured Memories</p>
+        <h2>Our Jaipur Scrapbook</h2>
+        <div class="polaroid-gallery">
+          <div class="polaroid" style="--r: -3deg;">
+            <div class="polaroid-img">
+              <img src="URL_HERE" alt="Jaipur Memory 1" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+            </div>
+            <div class="polaroid-caption">Where it all felt real</div>
+          </div>
+          <div class="polaroid" style="--r: 4deg;">
+            <div class="polaroid-img">
+              <img src="URL_HERE" alt="Jaipur Memory 2" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+            </div>
+            <div class="polaroid-caption">Jaipur Day &bull; Moments</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page">
+        <p class="eyebrow">The Miniatures of Us</p>
+        <h2>Every Little Moment</h2>
+        <div class="memory-grid">
+          <div class="memory-card">
+            <h3>Finally Together</h3>
+            <p>After spending so long missing you through a screen, getting to hold your hand and simply be beside you
+              felt unreal. It's a snapshot I'll carry forever.</p>
+          </div>
+          <div class="memory-card">
+            <h3>The Small Things</h3>
+            <p>The shared laughs, walking around, sharing food, and talking about absolutely everything—nothing
+              extraordinary, yet completely unforgettable because it was you.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="songPage">
+        <div class="vinyl-wrap">
+          <div class="vinyl" id="vinylDisc" onclick="togglePlay()"></div>
+        </div>
+        <p class="eyebrow">Our Dedicated Soundtrack</p>
+        <h2>Gehra Hua</h2>
+        <p class="sub">The song we picked to belong exclusively to us. Every time it plays, it's basically just your
+          name on repeat in my mind. Tap the record to pause or play.</p>
+        <button class="play-btn" id="customPlayBtn" onclick="togglePlay()">Play Song 🎵</button>
+      </div>
+
+      <div class="page">
+        <h2>Reasons, In No Particular Order</h2>
+        <p class="eyebrow" id="progress" style="color: var(--pink-deep);">0 / 8 Hearts Opened</p>
+        <div class="hearts-grid" id="heartsGrid"></div>
+        <p class="reasons-finale" id="finale"></p>
+      </div>
+
+      <div class="page" id="finalePage">
+        <p class="eyebrow">End of page, never of us</p>
+        <h1 style="font-size: clamp(2.5rem, 8vw, 5rem); color: var(--pink-deep); margin-bottom: 20px;">I Love You</h1>
+        <p class="sub">No matter how many days, weeks, or miles separate us, there is one thing I never have to wonder
+          about—my heart will always find its way back to yours.</p>
+        <p class="sub"
+          style="font-family: 'Fredoka', sans-serif; font-weight:600; margin-top:20px; color: var(--pink-deep);">Always
+          yours, Nanu Baby. 🩷</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="nav-fixed">
+    <button class="nav-arrow" id="prevBtn" onclick="prevPage()">←</button>
+    <div class="page-indicator" id="pageIndicator">Page 1 / 7</div>
+    <button class="nav-arrow" id="nextBtn" onclick="nextPage()">→</button>
+  </div>
+
+  <script>
+    let currentPage = 0;
+    const pages = document.querySelectorAll('.page');
+    const pageIndicator = document.getElementById('pageIndicator');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let player;
+    let hasTriggeredOnSongPage = false;
+    let hasTriggeredConfetti = false;
+
+    // Load YouTube Framework
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '200',
+        width: '300',
+        videoId: 'xI4vEQlip8E', 
+        playerVars: {
+          'playsinline': 1,
+          'controls': 0,
+          'disablekb': 1,
+          'rel': 0
+        },
+        events: {
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      const vinyl = document.getElementById('vinylDisc');
+      const btn = document.getElementById('customPlayBtn');
+      if (event.data === YT.PlayerState.PLAYING) {
+        vinyl.classList.add('playing');
+        btn.textContent = "Pause Song ⏸️";
+      } else {
+        vinyl.classList.remove('playing');
+        btn.textContent = "Play Song 🎵";
+      }
+    }
+
+    function togglePlay() {
+      if (!player) return;
+      
+      if (typeof player.unMute === 'function') {
+        player.unMute();
+      }
+
+      const state = player.getPlayerState();
+      if (state === YT.PlayerState.PLAYING) {
+        player.pauseVideo();
+      } else {
+        player.playVideo();
+      }
+    }
+
+    function openEnvelope(envelopeEl) {
+      envelopeEl.classList.add('open');
+      setTimeout(() => {
+        document.getElementById('envelope-wrapper').classList.add('opened');
+      }, 1000);
+    }
+
+    // 3D Flip Mechanics Engine
+    function updateBookView() {
+      pages.forEach((page, index) => {
+        page.classList.remove('active', 'flipped');
+        if (index === currentPage) {
+          page.classList.add('active');
+        } else if (index < currentPage) {
+          page.classList.add('flipped');
+        }
+      });
+
+      pageIndicator.textContent = `Page ${currentPage + 1} / ${pages.length}`;
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = currentPage === pages.length - 1;
+
+      if (currentPage === 4 && !hasTriggeredOnSongPage) {
+        if (player && typeof player.playVideo === 'function') {
+          player.playVideo();
+          hasTriggeredOnSongPage = true;
+        }
+      }
+      
+      // Trigger heart blast confetti immediately when the final page is fully loaded
+      if (currentPage === pages.length - 1) {
+        triggerHeartBurstShowers();
+      } else {
+        hasTriggeredConfetti = false;
+      }
+    }
+
+    function nextPage() {
+      if (currentPage < pages.length - 1) {
+        currentPage++;
+        updateBookView();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        updateBookView();
+      }
+    }
+
+    // Heart Confetti Blaster Engine
+    function triggerHeartBurstShowers() {
+      if (hasTriggeredConfetti) return; // Prevent double trigger overlaps
+      hasTriggeredConfetti = true;
+      
+      const duration = 3500; 
+      const end = Date.now() + duration;
+      const pinkHearts = ['🩷', '❤️', '🌸', '✨', '💕', '💝', '💖'];
+
+      (function frame() {
+        for (let i = 0; i < 5; i++) {
+          createIndividualPopHeart(pinkHearts);
+        }
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    }
+
+    function createIndividualPopHeart(heartArray) {
+      const heart = document.createElement('div');
+      heart.className = 'pink-pop-heart';
+      heart.textContent = heartArray[Math.floor(Math.random() * heartArray.length)];
+
+      const angle = (Math.random() * 60) + 60; 
+      const velocity = (Math.random() * 400) + 300; 
+      const rad = angle * (Math.PI / 180);
+
+      const driftX = Math.cos(rad) * velocity;
+      const driftY = -Math.sin(rad) * velocity; 
+
+      heart.style.setProperty('--drift-x', driftX + 'px');
+      heart.style.setProperty('--drift-y', driftY + 'px');
+      heart.style.setProperty('--target-scale', (0.6 + Math.random() * 0.9));
+      heart.style.setProperty('--target-rotate', (-180 + Math.random() * 360) + 'deg');
+
+      heart.style.fontSize = (16 + Math.random() * 28) + 'px';
+
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1800);
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') nextPage();
+      if (e.key === 'ArrowLeft') prevPage();
+    });
+
+    // Smooth Swiping Engine
+    let touchStartX = 0;
+    document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, { passive: true });
+    document.addEventListener('touchend', e => {
+      const diff = e.changedTouches[0].screenX - touchStartX;
+      if (diff < -60) nextPage(); 
+      if (diff > 60) prevPage();
+    }, { passive: true });
+
+    // Sparkle Trail Generator
+    document.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.15) return;
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      sparkle.style.left = e.clientX + 'px';
+      sparkle.style.top = e.clientY + 'px';
+      document.body.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 800);
+    });
+
+    // Ambient Flow Objects Initialization
+    (function initAmbientBackgrounds() {
+      const ambientContainer = document.getElementById('ambient');
+      const symbols = ['🩷', '🐾', '✦', '✨', '❤️'];
+      const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 14;
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.className = 'float-item';
+        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.bottom = '-40px';
+        el.style.fontSize = (14 + Math.random() * 18) + 'px';
+        el.style.animationDuration = (10 + Math.random() * 10) + 's';
+        el.style.animationDelay = (Math.random() * 8) + 's';
+        ambientContainer.appendChild(el);
+      }
+    })();
+
+    // Time Tracker Calculation Engine (From May 17, 2026)
+    // Note: If running this past May 2026, the count increments upwards.
+    (function initTimer() {
+      const target = new Date(2026, 4, 17, 9, 53, 0);
+      const dEl = document.getElementById('d');
+      const hEl = document.getElementById('h');
+      const mEl = document.getElementById('m');
+      const sEl = document.getElementById('s');
+
+      function tick() {
+        const now = new Date();
+        let diff = now - target;
+        if (diff < 0) diff = 0;
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        dEl.textContent = String(days).padStart(3, '0');
+        hEl.textContent = String(hours).padStart(2, '0');
+        mEl.textContent = String(mins).padStart(2, '0');
+        sEl.textContent = String(secs).padStart(2, '0');
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+
+    // Reason Matrix Array Mapping
+    (function initReasonsGrid() {
+      const reasons = [
+        "I love being on video calls with you, even when we're not talking. Watching you work and hearing your voice makes me feel secure.",
+        "The effort you make to talk to me whenever you're home never goes unnoticed. It makes me feel incredibly lucky.",
+        "Every time I make a mistake, you choose understanding and forgiveness. Thank you for always believing in us.",
+        "In every single situation, you've stood cleanly beside me. You are my biggest and absolute loudest supporter.",
+        "Everything you do is adorable to me. The way you talk, smile, laugh, and the tiny things you don't notice yourself.",
+        "You are my home, my absolute comfort, and my entire world. My heart always perfectly tracks its way right back to you.",
+        "Nothing feels right when I don't get to see you or talk to you. Every day is infinitely brighter when you are around.",
+        "Thank you for being with me through everything. I love you more than words can ever explain, baby. ❤️"
+      ];
+
+      const grid = document.getElementById('heartsGrid');
+      const progress = document.getElementById('progress');
+      const finale = document.getElementById('finale');
+      const revealedSet = new Set();
+      const heartIcon = '<svg viewBox="0 0 24 24" fill="#ff4f81" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-7.5-4.7-10-9.3C0.3 8.3 2 4.5 5.6 4c2-0.3 3.7 0.7 4.9 2.3C11.7 4.7 13.4 3.7 15.4 4c3.6 0.5 5.3 4.3 3.6 7.7C19.5 16.3 12 21 12 21z"/></svg>';
+
+      reasons.forEach((reason, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'heart-btn';
+        btn.setAttribute('aria-label', 'Reveal reason ' + (i + 1));
+        btn.innerHTML = heartIcon;
+        btn.addEventListener('click', () => {
+          const isRevealed = btn.classList.toggle('revealed');
+          if (isRevealed) {
+            btn.textContent = reason;
+            revealedSet.add(i);
+          } else {
+            btn.innerHTML = heartIcon;
+            revealedSet.delete(i);
+          }
+          progress.textContent = `${revealedSet.size} / ${reasons.length} Hearts Opened`;
+          
+          if (revealedSet.size === reasons.length) {
+            finale.textContent = 'Every reason leads back to one beautiful truth: you.';
+          } else {
+            finale.textContent = '';
+          }
+        });
+        grid.appendChild(btn);
+      });
+    })();
+
+    updateBookView();
+  </script>
+</body>
+
+</html>
